@@ -5,7 +5,7 @@ location = "japaneast"
 prefix   = "terraform"
 
 deployment_mode = "shared_rg"
-vm_names        = ["app-1", "app-2"]
+vm_count        = 2
 
 vnet_address_space = ["192.168.0.0/16"]
 

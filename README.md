@@ -1,9 +1,11 @@
 # Azure VM (Rocky Linux 9) Terraform Template
 
-`deployment_mode` を切り替えることで、次の 2 パターンで複数 VM を作成できます。
+`prefix` と `vm_count` から VM 名を自動採番します。
+例: `prefix = "web"` かつ `vm_count = 3` のとき、VM 名は `web-1`, `web-2`, `web-3` になります。
 
-- `shared_rg`: 1 つの Resource Group / VNet / Subnet / NSG を共有して、VM だけ複数作成
-- `per_vm_rg`: VM ごとに Resource Group / VNet / Subnet / NSG を個別作成
+また、`deployment_mode` で次の 2 パターンを選べます。
+- `shared_rg`: 1 つの Resource Group / VNet / Subnet / NSG を共有して複数 VM を作成
+- `per_vm_rg`: VM ごとに Resource Group / VNet / Subnet / NSG を分離して作成
 
 ## 前提
 
@@ -14,25 +16,21 @@
 ## クイックスタート
 
 1. Azure にログイン
-
 ```powershell
 az login
 ```
 
 2. サブスクリプションを設定
-
 ```powershell
 az account set --subscription <YOUR_SUBSCRIPTION_ID>
 ```
 
 3. 変数ファイルを作成して編集
-
 ```powershell
 Copy-Item terraform.tfvars.example terraform.tfvars
 ```
 
 4. 作成
-
 ```powershell
 terraform init
 terraform plan
@@ -40,73 +38,58 @@ terraform apply
 ```
 
 5. 削除
-
 ```powershell
 terraform destroy
 ```
 
 ## 重要な変数
 
-- `subscription_id`: Azure サブスクリプション ID（現状の実装では必須）
-- `location`: リージョン（例: `japaneast`）
-- `prefix`: リソース名の共通接頭辞
+- `subscription_id`: Azure サブスクリプション ID（この構成では必須）
+- `location`: デプロイ先リージョン（例: `japaneast`）
+- `prefix`: リソース名の接頭辞。VM 名は `<prefix>-<連番>` になる
+- `vm_count`: VM 台数（正の整数）
 - `deployment_mode`: `shared_rg` または `per_vm_rg`
-- `vm_names`: VM 識別子のリスト（例: `["app-1", "app-2"]`）
 
-## モード別の挙動
+## 命名ルール
 
-### `shared_rg`
+`prefix = "web"` と `vm_count = 2` の場合:
+- VM: `web-1`, `web-2`
+- Public IP: `public-ip-web-1`, `public-ip-web-2`
+- NIC: `nic-web-1`, `nic-web-2`
+- NIC IP Configuration: `ip-config-web-1`, `ip-config-web-2`
 
-- 共有: `rg`, `vnet`, `subnet`, `nsg`, `nsg-rule`
-- VM ごとに作成: `public-ip`, `nic`, `vm`
+`deployment_mode = "shared_rg"` の場合:
+- `rg-web`, `vnet-web`, `subnet-web`, `nsg-web`, `nsg-rule-web`
 
-命名例（`prefix = "dev"`, `vm_names = ["app-1", "app-2"]`）
-
-- `rg-dev`
-- `vnet-dev`
-- `subnet-dev`
-- `nsg-dev`
-- `nsg-rule-dev`
-- `public-ip-dev-app-1`, `public-ip-dev-app-2`
-- `nic-dev-app-1`, `nic-dev-app-2`
-- `vm-dev-app-1`, `vm-dev-app-2`
-
-### `per_vm_rg`
-
-- VM ごとに `rg`, `vnet`, `subnet`, `nsg`, `nsg-rule`, `public-ip`, `nic`, `vm` を作成
-
-命名例（`prefix = "dev"`, `vm_names = ["app-1", "app-2"]`）
-
-- `rg-dev-app-1`, `vnet-dev-app-1`, `subnet-dev-app-1`, `vm-dev-app-1`
-- `rg-dev-app-2`, `vnet-dev-app-2`, `subnet-dev-app-2`, `vm-dev-app-2`
+`deployment_mode = "per_vm_rg"` の場合:
+- `rg-web-1`, `vnet-web-1`, `subnet-web-1`, `nsg-web-1`, `nsg-rule-web-1`
+- `rg-web-2`, `vnet-web-2`, `subnet-web-2`, `nsg-web-2`, `nsg-rule-web-2`
 
 ## `terraform.tfvars` 設定例
 
-### 1. 同一 RG にまとめる場合
-
+同一 RG にまとめる場合:
 ```hcl
 location        = "japaneast"
-prefix          = "dev"
+prefix          = "web"
+vm_count        = 3
 deployment_mode = "shared_rg"
-vm_names        = ["app-1", "app-2", "app-3"]
 ```
 
-### 2. VM ごとに RG を分ける場合
-
+VM ごとに RG を分ける場合:
 ```hcl
 location        = "japaneast"
-prefix          = "dev"
+prefix          = "web"
+vm_count        = 3
 deployment_mode = "per_vm_rg"
-vm_names        = ["app-1", "batch-1", "jump-1"]
 ```
 
 ## 運用の目安
 
-- `shared_rg`: 同じシステムとして一括運用し、ネットワークを共通化したい場合に向く
-- `per_vm_rg`: VM 単位でライフサイクルや権限を分離し、用途ごとに境界を分けたい場合に向く
+- `shared_rg`: 同一システムとしてまとめて管理したい場合に向く
+- `per_vm_rg`: VM ごとに権限、ライフサイクル、削除単位を分けたい場合に向く
 
-## バリデーションと注意点
+## 注意点
 
-- `prefix` と `vm_names` は `a-z`, `0-9`, `-` のみ使用可能
-- `vm_names` は重複不可
-- `admin_password` を `terraform.tfvars` に書く場合は、Git 管理しないこと
+- `prefix` は `a-z`, `0-9`, `-` のみ使用可能
+- `vm_count` は 1 以上の整数のみ使用可能
+- `admin_password` を `terraform.tfvars` に置く場合は Git 管理しないこと

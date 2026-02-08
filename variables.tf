@@ -76,16 +76,15 @@ variable "deployment_mode" {
   }
 }
 
-variable "vm_names" {
-  type = list(string)
+variable "vm_count" {
+  type = number
 
   validation {
     condition = (
-      length(var.vm_names) > 0 &&
-      length(toset(var.vm_names)) == length(var.vm_names) &&
-      alltrue([for name in var.vm_names : can(regex("^[a-z0-9-]+$", name))])
+      var.vm_count > 0 &&
+      floor(var.vm_count) == var.vm_count
     )
-    error_message = "vm_names must be a non-empty list of unique lowercase names using only letters, numbers, and hyphens."
+    error_message = "vm_count must be a positive integer."
   }
 }
 
