@@ -2,20 +2,15 @@
 # subscription_id = "00000000-0000-0000-0000-000000000000"
 
 location            = "japaneast"
-resource_group_name = "rg-terraform"
+prefix              = "terraform"
 
-vnet_name          = "vnet-terraform"
 vnet_address_space = ["192.168.0.0/16"]
 
-subnet_name             = "subnet-terraform"
 subnet_address_prefixes = ["192.168.1.0/24"]
 
-public_ip_name              = "public-ip-terraform"
 public_ip_allocation_method = "Static"
 public_ip_sku               = "Standard"
 
-nsg_name                            = "nsg-terraform"
-nsg_rule_name                       = "nsg-rule-terraform"
 nsg_rule_priority                   = 100
 nsg_rule_direction                  = "Inbound"
 nsg_rule_access                     = "Allow"
@@ -25,11 +20,8 @@ nsg_rule_destination_port_range     = "*"
 nsg_rule_source_address_prefix      = "60.93.183.11/32"
 nsg_rule_destination_address_prefix = "*"
 
-nic_name                  = "nic-terraform"
-nic_ip_configuration_name = "ip-config"
 nic_private_ip_allocation = "Dynamic"
 
-prefix                          = "terraform"
 vm_size                         = "Standard_D2ads_v7"
 admin_username                  = "igari"
 disable_password_authentication = false

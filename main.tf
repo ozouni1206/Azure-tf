@@ -1,24 +1,36 @@
+locals {
+  resource_group_name      = "rg-${var.prefix}"
+  vnet_name                = "vnet-${var.prefix}"
+  subnet_name              = "subnet-${var.prefix}"
+  public_ip_name           = "public-ip-${var.prefix}"
+  nsg_name                 = "nsg-${var.prefix}"
+  nsg_rule_name            = "nsg-rule-${var.prefix}"
+  nic_name                 = "nic-${var.prefix}"
+  nic_ip_configuration_name = "ip-config-${var.prefix}"
+  vm_name                  = "vm-${var.prefix}"
+}
+
 resource "azurerm_resource_group" "rg_terraform" {
-  name     = var.resource_group_name
+  name     = local.resource_group_name
   location = var.location
 }
 
 resource "azurerm_virtual_network" "vnet_terraform" {
-  name                = var.vnet_name
+  name                = local.vnet_name
   location            = var.location
   resource_group_name = azurerm_resource_group.rg_terraform.name
   address_space       = var.vnet_address_space
 }
 
 resource "azurerm_subnet" "subnet_terraform" {
-  name                 = var.subnet_name
+  name                 = local.subnet_name
   resource_group_name  = azurerm_resource_group.rg_terraform.name
   virtual_network_name = azurerm_virtual_network.vnet_terraform.name
   address_prefixes     = var.subnet_address_prefixes
 }
 
 resource "azurerm_public_ip" "public_ip_terraform" {
-  name                = var.public_ip_name
+  name                = local.public_ip_name
   location            = azurerm_resource_group.rg_terraform.location
   resource_group_name = azurerm_resource_group.rg_terraform.name
   allocation_method   = var.public_ip_allocation_method
@@ -26,13 +38,13 @@ resource "azurerm_public_ip" "public_ip_terraform" {
 }
 
 resource "azurerm_network_security_group" "nsg_terraform" {
-  name                = var.nsg_name
+  name                = local.nsg_name
   location            = azurerm_resource_group.rg_terraform.location
   resource_group_name = azurerm_resource_group.rg_terraform.name
 }
 
 resource "azurerm_network_security_rule" "nsg_rule_terraform" {
-  name                        = var.nsg_rule_name
+  name                        = local.nsg_rule_name
   resource_group_name         = azurerm_resource_group.rg_terraform.name
   network_security_group_name = azurerm_network_security_group.nsg_terraform.name
   priority                    = var.nsg_rule_priority
@@ -46,12 +58,12 @@ resource "azurerm_network_security_rule" "nsg_rule_terraform" {
 }
 
 resource "azurerm_network_interface" "nic_terraform" {
-  name                = var.nic_name
+  name                = local.nic_name
   location            = azurerm_resource_group.rg_terraform.location
   resource_group_name = azurerm_resource_group.rg_terraform.name
 
   ip_configuration {
-    name                          = var.nic_ip_configuration_name
+    name                          = local.nic_ip_configuration_name
     subnet_id                     = azurerm_subnet.subnet_terraform.id
     private_ip_address_allocation = var.nic_private_ip_allocation
     public_ip_address_id          = azurerm_public_ip.public_ip_terraform.id
@@ -64,7 +76,7 @@ resource "azurerm_network_interface_security_group_association" "example" {
 }
 
 resource "azurerm_linux_virtual_machine" "vm_terraform" {
-  name                            = "vm-${var.prefix}"
+  name                            = local.vm_name
   resource_group_name             = azurerm_resource_group.rg_terraform.name
   location                        = azurerm_resource_group.rg_terraform.location
   size                            = var.vm_size

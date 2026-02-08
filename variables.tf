@@ -6,28 +6,12 @@ variable "location" {
   type = string
 }
 
-variable "resource_group_name" {
-  type = string
-}
-
-variable "vnet_name" {
-  type = string
-}
-
 variable "vnet_address_space" {
   type = list(string)
 }
 
-variable "subnet_name" {
-  type = string
-}
-
 variable "subnet_address_prefixes" {
   type = list(string)
-}
-
-variable "public_ip_name" {
-  type = string
 }
 
 variable "public_ip_allocation_method" {
@@ -35,14 +19,6 @@ variable "public_ip_allocation_method" {
 }
 
 variable "public_ip_sku" {
-  type = string
-}
-
-variable "nsg_name" {
-  type = string
-}
-
-variable "nsg_rule_name" {
   type = string
 }
 
@@ -78,20 +54,17 @@ variable "nsg_rule_destination_address_prefix" {
   type = string
 }
 
-variable "nic_name" {
-  type = string
-}
-
-variable "nic_ip_configuration_name" {
-  type = string
-}
-
 variable "nic_private_ip_allocation" {
   type = string
 }
 
 variable "prefix" {
   type = string
+
+  validation {
+    condition     = can(regex("^[a-z0-9-]+$", var.prefix))
+    error_message = "prefix must contain only lowercase letters, numbers, and hyphens."
+  }
 }
 
 variable "vm_size" {
