@@ -29,7 +29,7 @@ nic_name                  = "nic-terraform"
 nic_ip_configuration_name = "ip-config"
 nic_private_ip_allocation = "Dynamic"
 
-vm_name                         = "vm-terraform"
+prefix                          = "terraform"
 vm_size                         = "Standard_D2ads_v7"
 admin_username                  = "igari"
 disable_password_authentication = false

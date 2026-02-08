@@ -64,7 +64,7 @@ resource "azurerm_network_interface_security_group_association" "example" {
 }
 
 resource "azurerm_linux_virtual_machine" "vm_terraform" {
-  name                            = var.vm_name
+  name                            = "vm-${var.prefix}"
   resource_group_name             = azurerm_resource_group.rg_terraform.name
   location                        = azurerm_resource_group.rg_terraform.location
   size                            = var.vm_size

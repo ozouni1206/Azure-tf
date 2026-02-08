@@ -90,7 +90,7 @@ variable "nic_private_ip_allocation" {
   type = string
 }
 
-variable "vm_name" {
+variable "prefix" {
   type = string
 }
 
