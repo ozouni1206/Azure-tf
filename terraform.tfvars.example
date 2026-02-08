@@ -1,8 +1,11 @@
 # Optional: If not set, Azure CLI current subscription is used.
 # subscription_id = "00000000-0000-0000-0000-000000000000"
 
-location            = "japaneast"
-prefix              = "terraform"
+location = "japaneast"
+prefix   = "terraform"
+
+deployment_mode = "shared_rg"
+vm_names        = ["app-1", "app-2"]
 
 vnet_address_space = ["192.168.0.0/16"]
 

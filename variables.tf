@@ -67,6 +67,28 @@ variable "prefix" {
   }
 }
 
+variable "deployment_mode" {
+  type = string
+
+  validation {
+    condition     = contains(["shared_rg", "per_vm_rg"], var.deployment_mode)
+    error_message = "deployment_mode must be either shared_rg or per_vm_rg."
+  }
+}
+
+variable "vm_names" {
+  type = list(string)
+
+  validation {
+    condition = (
+      length(var.vm_names) > 0 &&
+      length(toset(var.vm_names)) == length(var.vm_names) &&
+      alltrue([for name in var.vm_names : can(regex("^[a-z0-9-]+$", name))])
+    )
+    error_message = "vm_names must be a non-empty list of unique lowercase names using only letters, numbers, and hyphens."
+  }
+}
+
 variable "vm_size" {
   type = string
 }
